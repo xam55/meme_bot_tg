@@ -32,33 +32,41 @@ def meme_parsing():
     return random.choice(images)
 
 
-def it_meme_parsing():
-    url = "https://pikabu.ru/tag/it%20юмор"
-    headers = dict(HEADERS_COMMON, Referer="https://pikabu.ru/")
 
-    resp = requests.get(url, headers=headers, timeout=10)
+
+TAG_URL = "https://devhumor.com/"
+
+
+def get_it_memes_joyreactor():
+    headers = {"User-Agent": "Mozilla/5.0"}
+    resp = requests.get(TAG_URL, headers=headers)
     resp.raise_for_status()
-
     soup = BeautifulSoup(resp.text, "html.parser")
 
     images = []
 
-    for img in soup.select("img.story-image__image"):
-        src = img.get("data-src") or img.get("src")
-        if src and src.startswith("http") and (src.endswith(".jpg") or src.endswith(".jpeg") or src.endswith(".png")):
-            images.append(src)
+    for img in soup.find_all("img"):
+        src = img.get("src")
+        if not src:
+            continue
 
-
-    if not images:
-        for img in soup.find_all("img"):
-            src = img.get("data-src") or img.get("src")
-            if src and "pikabu" in src and (src.endswith(".jpg") or src.endswith(".jpeg") or src.endswith(".png")):
+        if "joyreactor.cc" in src or "reactor.cc" in src:
+            if src.lower().endswith((".jpg", ".jpeg", ".png")):
                 images.append(src)
 
-    if not images:
-        return None
+    return images
 
-    return random.choice(images)
+
+def get_random_it_meme():
+    imgs = get_it_memes_joyreactor()
+    if not imgs:
+        return None
+    return random.choice(imgs)
+
+
+
+
+
 
 
 
